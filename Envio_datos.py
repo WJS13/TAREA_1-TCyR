@@ -25,7 +25,7 @@ class ArduinoDataSender:
         self.cursor = self.db.cursor()
 
     def store_data(self, temp_amb, temp_centro, temp_sup):
-        now = datetime.now().strftime('%H:%M:%S')
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if temp_amb is not None and temp_centro is not None and temp_sup is not None:
             sql = "INSERT INTO Temperatura (T_amb, T_centro, T_sup, Hora) VALUES (%s, %s, %s, %s)"
             values = (temp_amb, temp_centro, temp_sup, now)
