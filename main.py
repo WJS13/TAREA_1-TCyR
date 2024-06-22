@@ -1,6 +1,5 @@
 from interpolacion import Interpolacion
 import numpy as np
-import matplotlib as mt
 import mysql.connector
 from scipy import optimize
 from dotenv import load_dotenv
