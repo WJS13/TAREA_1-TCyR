@@ -37,7 +37,6 @@ float termistor(int RawADC) {
 void setup() {
   Serial.begin(9600); // Iniciar la comunicación serial
   dht.begin();
-  delay(1000);
 }
 
 void loop() {
@@ -55,4 +54,35 @@ void loop() {
   Serial.println(t_r,3);
 
   delay(1500); // Esperar 1.5 segundos entre lecturas
+
+    float t_0;
+  float t_r;
+  float t_inf;
+  t_0 = termistor(analogRead(TEMP_0));
+  t_r = termistor(analogRead(TEMP_R));
+  t_inf = dht.readTemperature();
+  // Enviar los datos por el puerto serial separados por comas
+  Serial.print(t_inf,3);
+  Serial.print(",");
+  Serial.print(t_0,3);
+  Serial.print(",");
+  Serial.println(t_r,3);
+
+  delay(1500); // Esperar 1.5 segundos entre lecturas
+  
+  float t_0;
+  float t_r;
+  float t_inf;
+  t_0 = termistor(analogRead(TEMP_0));
+  t_r = termistor(analogRead(TEMP_R));
+  t_inf = dht.readTemperature();
+  // Enviar los datos por el puerto serial separados por comas
+  Serial.print(t_inf,3);
+  Serial.print(",");
+  Serial.print(t_0,3);
+  Serial.print(",");
+  Serial.println(t_r,3);
+
+  delay(1500); // Esperar 1.5 segundos entre lecturas
+  delay(299000);
 }

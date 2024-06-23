@@ -22,7 +22,7 @@ def db_config():
     }
 
 class ArduinoDataSender:
-    def _init_(self):
+    def __init__(self):
         self.db_config = db_config()
         self.db = mysql.connector.connect(**self.db_config)
         self.cursor = self.db.cursor()
@@ -43,8 +43,8 @@ class ArduinoDataSender:
 # Configuración del puerto serial
 puerto_serial = 'COM13'  # Cambiar según el puerto utilizado
 baud_rate = 9600
-tiempo_total = 5 * 60  # 1 hora
-intervalo_lectura = 1.5 * 60  # 5 minutos
+tiempo_total = 71 * 60  # 1 hora
+intervalo_lectura = 5 * 60  # 5 minutos
 
 # Inicializar la comunicación serial
 ser = serial.Serial(puerto_serial, baud_rate)
@@ -78,18 +78,18 @@ def registrar_datos():
                             print("Error: número incorrecto de datos recibidos")
                     time.sleep(1.5)
                 
-                promedio1 /= 10
-                promedio2 /= 10
-                promedio3 /= 10
+                promedio1 /= 3
+                promedio2 /= 3
+                promedio3 /= 3
                 
                 tiempo_actual = time.strftime('%Y-%m-%d_%H-%M-%S')
-                archivo.write(f"{i}, {promedio1:.3f}, {promedio2:.3f}, {promedio3:.3f},{tiempo_actual}\n")
+                archivo.write(f"0+{i}, {promedio1:.3f}, {promedio2:.3f}, {promedio3:.3f},{tiempo_actual}\n")
                 archivo.flush()
 
                 tiempos.append(tiempo_actual)
-                datos1.append(promedio1)
-                datos2.append(promedio2)
-                datos3.append(promedio3)
+                datos1.append(round(promedio1,4))
+                datos2.append(round(promedio2,4))
+                datos3.append(round(promedio3,4))
 
             except Exception as e:
                 print(f"Error de lectura: {e}")
@@ -127,8 +127,8 @@ ser.close()
 #Envía las medidas a la base de datos
 sender = ArduinoDataSender()
 
-for i in range(13):
-    sender.store_data(datos1[i], datos2[i], datos3[i], tiempos[i])
+for i in range(len(datos1)-1):
+    sender.store_data(datos1[i+1], datos2[i+1], datos3[i+1], tiempos[i+1]) #Envío
 
 sender.close_connection()
 
@@ -146,3 +146,5 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 plt.savefig("grafico_datos.png")
 plt.show()
+
+print('Finalizado')

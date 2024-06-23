@@ -54,11 +54,11 @@ masa = 0.13
 volumen1 = 500.00e-6
 volumen2 = 700.00e-6
 densidad = masa / np.abs(volumen1-volumen2)
-t = [1, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
+t = [1, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
 
 def calcular_lambda(T_amb_list, T_centro_list, T_sup_list):
     def ecuacion(lambda1, T_amb, T_centro, T_sup):
-        return (T_sup - T_amb) / (T_centro - T_amb) - np.sin(lambda1) / lambda1
+        return np.abs(T_sup - T_amb) / np.abs(T_centro - T_amb) - np.sin(lambda1) / lambda1
 
     lambdas = []
     for T_amb, T_centro, T_sup in zip(T_amb_list, T_centro_list, T_sup_list):
@@ -84,7 +84,7 @@ def calcular_A1(Bi_list):
 def calcular_tau(T_centro_list, lambdas, T_amb_list, A1_list):
     taus = []
     for i in range(len(T_centro_list)):
-        tau = -np.log((T_centro_list[i] - T_amb_list[i]) / (A1_list[i] * (T_centro_list[0] - T_amb_list[i]))) / (lambdas[i] ** 2)
+        tau = -np.log(np.abs(T_centro_list[i] - T_amb_list[i]) / (A1_list[i] * np.abs(T_centro_list[0] - T_amb_list[i]))) / (lambdas[i] ** 2)
         taus.append(tau)
     return taus
 
