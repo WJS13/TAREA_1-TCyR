@@ -47,13 +47,13 @@ def guardar_temperaturas(resultados):
     return T_amb_list, T_centro_list, T_sup_list
 
 # Constantes
-Cp = 3.589
-radio = 11.50e-2
+Cp = 3589
+radio = 3.18e-2
 diametro = 2*radio
 masa = 0.125 
 volumen = 130e-6
-densidad = masa / volumen
-t = [1, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
+densidad = masa/volumen
+t = [300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300,3600]
 
 def calcular_lambda(T_amb_list, T_centro_list, T_sup_list):
     def ecuacion(lambda1, T_amb, T_centro, T_sup):
@@ -187,7 +187,6 @@ def main():
     resultados = fetch_temperatures()
     T_amb_list, T_centro_list, T_sup_list = guardar_temperaturas(resultados)
     lambdas = calcular_lambda(T_amb_list, T_centro_list, T_sup_list)
-    print(lambdas)
     Bi_list = calcular_Bi(lambdas)
     A1_list = calcular_A1(Bi_list)
     tau_list = calcular_tau(T_centro_list, lambdas, T_amb_list, A1_list)
@@ -195,10 +194,15 @@ def main():
     k_list = calcular_k(difusividad_termica_list, Cp, densidad)
     h_list = calcular_h(Bi_list, k_list, radio)
 
-    exportar_resultados_parciales(lambdas, Bi_list, A1_list)
-    exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_list)
-    exportar_constantes(diametro, volumen, masa, Cp, densidad)
+    #exportar_resultados_parciales(lambdas, Bi_list, A1_list)
+    #exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_list)
+    #exportar_constantes(diametro, volumen, masa, Cp, densidad)
     graficar_resultados(t, difusividad_termica_list, k_list, h_list)
+    
+    print("Mean values:")
+    
+    print(np.mean(difusividad_termica_list), round(np.mean(k_list), 4), round(np.mean(h_list), 4))
+
 
 if __name__ == "__main__":
     main()
