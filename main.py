@@ -49,8 +49,9 @@ def guardar_temperaturas(resultados):
 Cp = 3.65
 radio = 11.50e-2
 masa = 0.175 
-volumen = 200.00e-6
-densidad = masa / volumen
+volumen1 = 500.00e-6
+volumen2 = 700.00e-6
+densidad = masa / np.abs(volumen1-volumen2)
 t = [1, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600]
 
 def calcular_lambda(T_amb_list, T_centro_list, T_sup_list):
