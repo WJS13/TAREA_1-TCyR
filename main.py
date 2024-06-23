@@ -1,5 +1,6 @@
 from interpolacion import Interpolacion
 import numpy as np
+import matplotlib.pyplot as plt
 import mysql.connector
 from scipy import optimize
 from dotenv import load_dotenv
@@ -48,6 +49,7 @@ def guardar_temperaturas(resultados):
 # Constantes
 Cp = 3.65
 radio = 11.50e-2
+diametro = 2*radio
 masa = 0.175 
 volumen1 = 500.00e-6
 volumen2 = 700.00e-6
@@ -110,6 +112,79 @@ def calcular_h(Bi_list, k_list, radio):
         h_list.append(h)
     return h_list
 
+def exportar_resultados_parciales(lambdas, Bi_list, A1_list):
+    db = mysql.connector.connect(**db_config())
+    cursor = db.cursor()
+    
+    for lambda1, Bi, A1 in zip(lambdas, Bi_list, A1_list):
+        cursor.execute("INSERT INTO resultados_1 (Lambda_1, Bi, A_1) VALUES (%s, %s, %s)", (lambda1, Bi, A1))
+    
+    db.commit()
+    cursor.close()
+    db.close()
+
+def exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_list):
+    db = mysql.connector.connect(**db_config())
+    cursor = db.cursor()
+    
+    for tau, difusividad_termica, k, h in zip(tau_list, difusividad_termica_list, k_list, h_list):
+        cursor.execute("INSERT INTO resultados_2 (tau, alfa, k, h) VALUES (%s, %s, %s, %s)", (tau, difusividad_termica, k, h))
+    
+    db.commit()
+    cursor.close()
+    db.close()
+
+def exportar_constantes(diametro, volumen1, volumen2, masa, Cp, densidad):
+    db = mysql.connector.connect(**db_config())
+    cursor = db.cursor()
+
+    cursor.execute("""
+        INSERT INTO datos_generales (Diametro_pera, Volumen_1, Volumen_2, masa, Cp, densidad)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (diametro, volumen1, volumen2, masa, Cp, densidad))
+
+    db.commit()
+    cursor.close()
+    db.close()
+
+def graficar_resultados(t_list, difusividad_termica_list, k_list, h_list):
+    mean_difusividad = np.mean(difusividad_termica_list)
+    mean_k = np.mean(k_list)
+    mean_h = np.mean(h_list)
+
+    plt.figure(figsize=(14, 8))
+
+    # Graficar Difusividad Térmica vs Tiempo
+    plt.subplot(2, 3, 1)
+    plt.plot(t_list, difusividad_termica_list, label='Difusividad Térmica')
+    plt.axhline(y=mean_difusividad, color='r', linestyle='--', label=f'Promedio: {mean_difusividad:.2e}')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('Difusividad Térmica (m^2/s)')
+    plt.title('Difusividad Térmica vs Tiempo')
+    plt.legend()
+
+    # Graficar k vs Tiempo
+    plt.subplot(2, 3, 2)
+    plt.plot(t_list, k_list, label='k')
+    plt.axhline(y=mean_k, color='r', linestyle='--', label=f'Promedio: {mean_k:.4f}')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('k (W/mK)')
+    plt.title('k vs Tiempo')
+    plt.legend()
+
+    # Graficar h vs Tiempo
+    plt.subplot(2, 3, 3)
+    plt.plot(t_list, h_list, label='h')
+    plt.axhline(y=mean_h, color='r', linestyle='--', label=f'Promedio: {mean_h:.4f}')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('h (W/m^2K)')
+    plt.title('h vs Tiempo')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
 def main():
     resultados = fetch_temperatures()
     T_amb_list, T_centro_list, T_sup_list = guardar_temperaturas(resultados)
@@ -121,16 +196,10 @@ def main():
     k_list = calcular_k(difusividad_termica_list, Cp, densidad)
     h_list = calcular_h(Bi_list, k_list, radio)
 
-    print(T_amb_list)
-    print(T_centro_list)
-    print(T_sup_list)
-    print("Lambda1:", lambdas)
-    print("Bi:", Bi_list)
-    print("A1:", A1_list)
-    print("Tau:", tau_list)
-    print("Difusividad Térmica:", difusividad_termica_list)
-    print("k:", k_list)
-    print("h:", h_list)
+    exportar_resultados_parciales(lambdas, Bi_list, A1_list)
+    exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_list)
+    exportar_constantes(diametro, volumen1, volumen2, masa, Cp, densidad)
+    graficar_resultados(t, difusividad_termica_list, k_list, h_list)
 
 if __name__ == "__main__":
     main()
