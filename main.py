@@ -50,10 +50,9 @@ def guardar_temperaturas(resultados):
 Cp = 3.589
 radio = 11.50e-2
 diametro = 2*radio
-masa = 0.13 
-volumen1 = 500.00e-6
-volumen2 = 700.00e-6
-densidad = masa / np.abs(volumen1-volumen2)
+masa = 0.125 
+volumen = 130e-6
+densidad = masa / volumen
 t = [1, 300, 600, 900, 1200, 1500, 1800, 2100, 2400, 2700, 3000, 3300]
 
 def calcular_lambda(T_amb_list, T_centro_list, T_sup_list):
@@ -86,7 +85,7 @@ def calcular_tau(T_centro_list, lambdas, T_amb_list, A1_list):
     for i in range(len(T_centro_list)):
         tau = -np.log(np.abs(T_centro_list[i] - T_amb_list[i]) / (A1_list[i] * np.abs(T_centro_list[0] - T_amb_list[i]))) / (lambdas[i] ** 2)
         taus.append(tau)
-    return taus
+    return taus 
 
 def calcular_difusividad_termica(tau_list, radio, t_list):
     difusividad_termica_list = []
@@ -134,14 +133,14 @@ def exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_li
     cursor.close()
     db.close()
 
-def exportar_constantes(diametro, volumen1, volumen2, masa, Cp, densidad):
+def exportar_constantes(diametro, volumen, masa, Cp, densidad):
     db = mysql.connector.connect(**db_config())
     cursor = db.cursor()
 
     cursor.execute("""
-        INSERT INTO datos_generales (Diametro_pera, Volumen_1, Volumen_2, masa, Cp, densidad)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (diametro, volumen1, volumen2, masa, Cp, densidad))
+        INSERT INTO datos_generales (Diametro_pera, Volumen, masa, Cp, densidad)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (diametro, volumen, masa, Cp, densidad))
 
     db.commit()
     cursor.close()
@@ -188,6 +187,7 @@ def main():
     resultados = fetch_temperatures()
     T_amb_list, T_centro_list, T_sup_list = guardar_temperaturas(resultados)
     lambdas = calcular_lambda(T_amb_list, T_centro_list, T_sup_list)
+    print(lambdas)
     Bi_list = calcular_Bi(lambdas)
     A1_list = calcular_A1(Bi_list)
     tau_list = calcular_tau(T_centro_list, lambdas, T_amb_list, A1_list)
@@ -197,7 +197,7 @@ def main():
 
     exportar_resultados_parciales(lambdas, Bi_list, A1_list)
     exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_list)
-    exportar_constantes(diametro, volumen1, volumen2, masa, Cp, densidad)
+    exportar_constantes(diametro, volumen, masa, Cp, densidad)
     graficar_resultados(t, difusividad_termica_list, k_list, h_list)
 
 if __name__ == "__main__":
