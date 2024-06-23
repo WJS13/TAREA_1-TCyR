@@ -47,10 +47,10 @@ def guardar_temperaturas(resultados):
     return T_amb_list, T_centro_list, T_sup_list
 
 # Constantes
-Cp = 3.65
+Cp = 3.589
 radio = 11.50e-2
 diametro = 2*radio
-masa = 0.175 
+masa = 0.13 
 volumen1 = 500.00e-6
 volumen2 = 700.00e-6
 densidad = masa / np.abs(volumen1-volumen2)
@@ -180,7 +180,6 @@ def graficar_resultados(t_list, difusividad_termica_list, k_list, h_list):
     plt.ylabel('h (W/m^2K)')
     plt.title('h vs Tiempo')
     plt.legend()
-
     plt.tight_layout()
     plt.show()
 
