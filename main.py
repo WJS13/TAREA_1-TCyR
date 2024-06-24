@@ -194,13 +194,12 @@ def main():
     k_list = calcular_k(difusividad_termica_list, Cp, densidad)
     h_list = calcular_h(Bi_list, k_list, radio)
 
-    #exportar_resultados_parciales(lambdas, Bi_list, A1_list)
-    #exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_list)
-    #exportar_constantes(diametro, volumen, masa, Cp, densidad)
+    exportar_resultados_parciales(lambdas, Bi_list, A1_list)
+    exportar_resultados_finales(tau_list, difusividad_termica_list, k_list, h_list)
+    exportar_constantes(diametro, volumen, masa, Cp, densidad)
     graficar_resultados(t, difusividad_termica_list, k_list, h_list)
     
     print("Mean values:")
-    
     print(np.mean(difusividad_termica_list), round(np.mean(k_list), 4), round(np.mean(h_list), 4))
 
 
